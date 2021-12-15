@@ -18,6 +18,10 @@ const fullDate = `${date}${month+1}${year}`;
 
 const time = `${hours}${minutes}${seconds}`;
 
+app.get("/",(req,res) => {
+    res.send("Hello...");
+})
+
 app.get("/createFile",(req,res) => {
    
      const { directoryPath } = req.body;
