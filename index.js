@@ -1,120 +1,55 @@
 import  express from "express";
-import { MongoClient } from "mongodb";
-import dotenv from 'dotenv';
-import cors from "cors";
-
-
+import fs from "fs";
+import path from "path";
 
 const app = express()
-
-dotenv.config();
-
-const PORT = process.env.PORT;
-
 app.use(express.json())
-app.use(cors());   
 
-app.get("/",(req,res) => {
+let timestamp = new Date(Date.now())
+let date = timestamp.getDate();
+let month = timestamp.getMonth();
+let year = timestamp.getFullYear();
 
-    res.send("Hello");
+let hours = timestamp.getHours();
+let minutes = timestamp.getMinutes();
+let seconds = timestamp.getSeconds();
 
-})
+const fullDate = `${date}${month+1}${year}`;
 
-const MONGO_URL = process.env.MONGO_URL;
+const time = `${hours}${minutes}${seconds}`;
 
-async function createConnection(){
-    const client = new MongoClient(MONGO_URL);
-    await client.connect();
-    console.log("MongoDb connected");
-    return client;
-}
+app.get("/createFile",(req,res) => {
+   
+     const { directoryPath } = req.body;
+     const __dirname = path.resolve(directoryPath);
 
-const client = await createConnection();
-
-app.get("/rooms", async (req,res) => {
-
-    const rooms = await client.db("b28wd").collection("rooms").find({}).toArray();
-    res.send(rooms);
     
+    fs.writeFile( `${__dirname}/${fullDate}-${time}.txt` ,`${fullDate}${time}`,(err) => {
+        if(err){
+            console.log(err);
+            return;
+        }
+        else {
+            console.log("The file was saved!");
+            res.send("File created")
+           
+        }
+    });
+   
 })
 
-app.get('/customers', async (req,res) => {
-    const customers = await client.db("b28wd").collection("customers").find({}).toArray();
-    res.send(customers);
-})
+app.get("/getFiles",(req,res) => {
 
-app.post('/rooms/add', async (req,res) => {
-    const data = req.body;
-    const room = await client.db("b28wd").collection("rooms").insertOne(data);
-    res.send({ message: "Room created successfully !!" });
-
-})
-
-app.post('/customers/add', async (req,res) => {
-    const data = req.body;
-    const { room_name,Date,start_time,end_time } = req.body;
-    console.log(room_name);
-
-    const room = await client.db("b28wd").collection("rooms").findOne({name: room_name});
-
-    if(room.customers){
-        const customersBooked = room.customers; 
-
-    for(var i = 0;i<customersBooked.length;i++){
-        let customer = customersBooked[i];
-        if(customer.Date === Date){
-            const startTime =  customer.start_time;
-            const endTime =  customer.end_time;
-            const [hhS,mmS] = startTime.split(':');
-            const [hhE,mmE] = endTime.split(":");
-      
-            const [enteredHours,enteredMinutes] = start_time.split(":");
-            const [enteredHoursEnd,enteredMinutesEnd] = end_time.split(":");
-            
-            if(parseInt(enteredHours)==hhE){
-                if(enteredMinutes<mmE){
-                    res.send({ message: "Booking is not available in this time slot" });
-                    return;
-                }
-            }
-            else if(parseInt(enteredHours)==hhS){
-                if(parseInt(enteredMinutes)>=mmS){
-                    res.send({ message: "Booking is not available in this time slot" });
-                    return;
-                }
-            }
-            else if(parseInt(enteredHoursEnd)==hhS){
-                if(parseInt(enteredMinutesEnd)>=mmS){
-                    res.send({ message: "Booking is not available in this time slot" });
-                    return;
-                }
-            }
-            else if(parseInt(enteredHoursEnd)==hhE){
-                
-                    res.send({ message: "Booking is not available in this time slot" });
-                    return;
-                
-            }
-        } 
-        
-       
-    }
-
-    }
+    const { directoryPath } = req.body;
+    const __dirname = path.resolve(directoryPath);
     
-    const customer = await client.db("b28wd").collection("customers").insertOne(data);
+    fs.readdir(__dirname,(err,files) => {
+        if(err) throw err;
+        res.send(files);
+    })
 
-    const result2 = await client.db("b28wd").collection("rooms").findOneAndUpdate({name: room_name}, {$set: { status: "booked"  }});
-
-    const result1 = await client.db("b28wd").collection("rooms").findOneAndUpdate({name: room_name}, {$push: { customers: data  }});
-
-    res.send({ message: "Room booked successfully" });
 })
 
 
-
-
-
-
-app.listen(PORT,() => console.log("App started on port 9000"));
+app.listen(9000,() => console.log("App started on port 9000"));
 
