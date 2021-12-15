@@ -1,9 +1,13 @@
 import  express from "express";
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 
 const app = express()
 app.use(express.json())
+dotenv.config();
+
+const PORT = process.env.PORT;
 
 let timestamp = new Date(Date.now())
 let date = timestamp.getDate();
@@ -55,5 +59,5 @@ app.get("/getFiles",(req,res) => {
 })
 
 
-app.listen(9000,() => console.log("App started on port 9000"));
+app.listen(PORT,() => console.log("App started on port 9000"));
 
