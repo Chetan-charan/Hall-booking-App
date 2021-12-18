@@ -75,7 +75,7 @@ app.get("/Display/getAllUrls",async (req,res) => {
     res.send(urlData);
 })
 
-app.get("/Display/urlStats",auth,async (req,res) => {
+app.get("/Display/urlStats",async (req,res) => {
 
     let timestamp = new Date(Date.now())
     let month = timestamp.getMonth()+1;
