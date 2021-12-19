@@ -39,7 +39,7 @@ const auth = (req,res,next) => {
     
     }
 
-app.post("/generateUrl",async (req,res) => {
+app.post("/generateUrl",auth,async (req,res) => {
     const { url } = req.body;
     const urlEncoded = shortid.generate();
     const shortenedUrl = `${baseUrl}/encodedUrl/${urlEncoded}`;
@@ -68,7 +68,7 @@ app.get("/encodedUrl/:code",async (req,res) => {
     res.redirect(longUrl);
 })
 
-app.get("/Display/getAllUrls",async (req,res) => {
+app.get("/Display/getAllUrls",auth,async (req,res) => {
     
     const urlData = await client.db("b28wd").collection("urls").find().toArray();
     
