@@ -75,7 +75,7 @@ app.get("/Display/getAllUrls",async (req,res) => {
     res.send(urlData);
 })
 
-app.get("/Display/urlStats",async (req,res) => {
+app.get("/Display/urlStats",auth,async (req,res) => {
 
     let timestamp = new Date(Date.now())
     let month = timestamp.getMonth()+1;
@@ -210,7 +210,7 @@ app.post("/signup", async (req, res) => {
     const options = {
         from: "chetanhc1997@hotmail.com",
         to: email,
-        subject: "Google Drive Activation Link",
+        subject: "URL Shortener App",
         html: `<a>${process.env.CLIENT_URL}/activate/${token}</a>`
     };
 
